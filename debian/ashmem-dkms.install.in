@@ -1,0 +1,5 @@
+ashmem.c	/usr/src/ashmem-@PACKAGE_VERSION@
+ashmem.h	/usr/src/ashmem-@PACKAGE_VERSION@
+deps.c		/usr/src/ashmem-@PACKAGE_VERSION@
+Makefile	/usr/src/ashmem-@PACKAGE_VERSION@
+uapi/ashmem.h	/usr/src/ashmem-@PACKAGE_VERSION@/uapi

@@ -1,0 +1,5 @@
+ashmem-linux (4.14+20171226-1) UNRELEASED; urgency=low
+
+  * Initial release.
+
+ -- You-Sheng Yang <vicamo@gmail.com>  Tue, 26 Dec 2017 15:28:28 +0800

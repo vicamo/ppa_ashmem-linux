@@ -1,0 +1,39 @@
+#!/usr/bin/make -f
+
+include /usr/share/dpkg/pkg-info.mk
+
+export DH_VERBOSE = 1
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+KERNEL_VERSION ?= $(word 1,$(subst +, ,$(DEB_VERSION_UPSTREAM)))
+
+%:
+	dh $@ --with dkms
+
+override_dh_auto_configure:
+	exit 0
+
+override_dh_auto_build:
+	exit 0
+
+override_dh_auto_install:
+	# Build install files for the dkms'ified sources
+	sed -e 's/@PACKAGE_VERSION@/${DEB_VERSION_UPSTREAM}/g' \
+	    -e 's/@KERNEL_VERSION@/$(KERNEL_VERSION)/g' \
+	  < debian/ashmem-dkms.dkms.in > debian/ashmem-dkms.dkms
+	sed -e 's/@PACKAGE_VERSION@/${DEB_VERSION_UPSTREAM}/g' \
+	  < debian/ashmem-dkms.install.in > debian/ashmem-dkms.install
+
+override_dh_auto_clean:
+	exit 0
+
+override_dh_auto_test:
+	exit 0
+
+override_dh_clean:
+	rm -f debian/ashmem-dkms.dkms
+	rm -f debian/ashmem-dkms.install
+	dh_clean
+
+override_dh_dkms:
+	dh_dkms -V ${DEB_VERSION_UPSTREAM}

@@ -1,0 +1,9 @@
+PACKAGE_NAME="ashmem"
+PACKAGE_VERSION=@PACKAGE_VERSION@
+CLEAN="make -C ${kernel_source_dir} M=${dkms_tree}/${PACKAGE_NAME}/${PACKAGE_VERSION}/build clean"
+MAKE[0]="make -C ${kernel_source_dir} M=${dkms_tree}/${PACKAGE_NAME}/${PACKAGE_VERSION}/build modules"
+BUILT_MODULE_NAME[0]="android-ashmem"
+DEST_MODULE_NAME[0]="ashmem"
+DEST_MODULE_LOCATION[0]="/updates/dkms"
+AUTOINSTALL="yes"
+BUILD_EXCLUSIVE_KERNEL="^@KERNEL_VERSION@.*"

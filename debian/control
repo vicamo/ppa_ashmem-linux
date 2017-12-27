@@ -1,0 +1,39 @@
+Source: ashmem-linux
+Section: kernel
+Priority: optional
+Maintainer:
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Arve Hjønevåg <arve@android.com>,
+ Riley Andrews <riandrews@android.com>,
+Uploaders: You-Sheng Yang <vicamo@gmail.com>
+Build-Depends:
+ debhelper (>=9),
+ dkms,
+ linux-kbuild-4.14,
+Standards-Version: 4.1.1
+Homepage: https://github.com/vicamo/ppa_ashmem-linux
+Vcs-Browser: https://github.com/vicamo/ppa_ashmem-linux
+Vcs-Git: https://github.com/vicamo/ppa_ashmem-linux.git
+
+Package: ashmem-dkms
+Architecture: all
+Depends:
+ ${misc:Depends},
+ linux-kbuild-4.14,
+Suggests: ashmem-dev
+Provides: ashmem-modules
+Description: DKMS files to build and install ANDROID ashmem
+ This package contains a out-of-tree version of the core Android ashmem driver.
+ .
+ To install this package, you have to install the header files for your current
+ kernel manually (usually included in the "linux-headers-<your architecture>").
+
+Package: ashmem-dev
+Architecture: all
+Multi-Arch: foreign
+Section: libdevel
+Depends:
+ ${misc:Depends},
+ linux-libc-dev,
+Description: Linux kernel uapi ashmem.h
+ This package contains drivers/staging/android/uapi/ashmem.h.
