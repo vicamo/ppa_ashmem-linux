@@ -37,3 +37,9 @@ override_dh_clean:
 
 override_dh_dkms:
 	dh_dkms -V ${DEB_VERSION_UPSTREAM}
+
+ifneq ($(WORKAROUND_BINTRAY_DEB_SUPPORT),)
+override_dh_builddeb:
+	dh_builddeb -- -Zgzip
+
+endif

@@ -1,0 +1,70 @@
+sudo: required
+services:
+- docker
+
+env:
+  global:
+  - BINTRAY_USER=vicamo
+  - BINTRAY_REPO=ppa
+  - BINTRAY_COMPONENT=contrib
+  - BINTRAY_DESC="DKMS files to build and install ANDROID ashmem"
+  - DOCKER_EXEC="sudo docker exec test_container"
+  matrix:
+  - SUITE=sid ARCH=amd64
+
+matrix:
+  fast_finish: true
+
+branches:
+  only:
+  - master
+  - /^\d+\.\d+/
+
+before_install:
+- sudo docker pull vicamo/debian-linux-kernel:${SUITE}-${ARCH}
+- sudo docker images
+- |
+  sudo docker run --detach --tty \
+    --name test_container \
+    --volume ${TRAVIS_BUILD_DIR%${TRAVIS_REPO_SLUG}}:${TRAVIS_BUILD_DIR%${TRAVIS_REPO_SLUG}} \
+    --workdir ${TRAVIS_BUILD_DIR} \
+    vicamo/debian-linux-kernel:${SUITE}-${ARCH} \
+    /bin/bash
+
+install:
+- ${DOCKER_EXEC} apt-get update --quiet --quiet
+- ${DOCKER_EXEC} apt-get install --no-install-recommends --yes
+    devscripts equivs
+- ${DOCKER_EXEC} mk-build-deps
+    --install --remove
+    --tool 'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends --yes --allow-unauthenticated'
+
+script:
+- ${DOCKER_EXEC} env WORKAROUND_BINTRAY_DEB_SUPPORT=1
+    dpkg-buildpackage -i -us -uc -b
+
+before_deploy:
+- |
+  cat .bintray.json.in | \
+    sed -e "s#@BINTRAY_PACKAGE@#$(cat debian/control | grep ^Source: | awk '{print $2}')#g" \
+        -e "s#@BINTRAY_USER@#${BINTRAY_USER}#g" \
+        -e "s#@BINTRAY_REPO@#${BINTRAY_REPO}#g" \
+        -e "s#@BINTRAY_DESC@#${BINTRAY_DESC}#g" \
+        -e "s#@GITHUB_REPO@#${TRAVIS_REPO_SLUG}#g" \
+        -e "s#@BINTRAY_VERSION@#$(cat debian/changelog | head -n 1 | sed 's,.*(\(.*\)).*,\1,')#g" \
+        -e "s#@BINTRAY_RELEASE_DATE@#$(date -Iseconds --date="$(cat debian/changelog | grep -m 1 '^ -- ' | sed 's,^.*  ,,')")#g" \
+        -e "s#@BINTRAY_OUTDIR@#$(dirname ${TRAVIS_BUILD_DIR})#g" \
+        -e "s#@BINTRAY_POOLABBR@#$(cat debian/control | grep ^Source: | awk '{print $2}' | cut -c1)#g" \
+        -e "s#@BINTRAY_SUITE@#${SUITE}#g" \
+        -e "s#@BINTRAY_COMPONENT@#${BINTRAY_COMPONENT}#g" \
+        -e "s#@BINTRAY_ARCH@#all#g" | \
+    tee .bintray.json
+
+deploy:
+- provider: bintray
+  file: .bintray.json
+  user: vicamo
+  key:
+    secure: "I8s0lcWTdiiZaDkP5DPcapPNsMJy1wBcAM12ijD9GUhMhFvqJ+GcKrrPulQjzqanGStEKDwaeij9T0I9uD810IJ9S9e/34LYJRVlNrugzIhRw4++ajifFIgvBhzA4yiUkDFfIrDUxck9a5Wpq/EIAQeNENL3TGpAfnY/yNYZ/FQO3X1VgtU874NDsgQ1p+r7ZbMDfAjonhgpaD38N09h/n4bK5sBtJFmbKS6g9pQzJvXopJcfIMQGHIqTg2pUo9Pi8IrrJSPoKcy7NNRgJiMNEoUTu1BJnICXyKgrUa94zT5beo9snM9hyIMsUEh2dUDDu1AxZD0rzUYN1R1mxoXznqhp8x00tqXsGbn4PkqyTWOpjXpTl5sIrP9ubbQ5RVtiN7QYUDByc1iHMLWCLt5imHUrY6hBDu2YNGjwS53sZaDIo18QnjhZb6w2ecMDY+9U6tn54pm/SGie82SBDvtY4bCb5gXe9HGYA0zrekBlqGnSqsNNZXYTd7EzcDj5/LXnKVseFFVF+g+cgBXzmOtCHq32RLVFwkDnNilgTF6Kq/DGEoUwMfcwVGqbRF0LbEBTMWIRFBxd5WaPtFl7zuysEtuJPR8gkbkDjwqL5FX/jGlBY4EnBtU/XLfHBg+wauPeupxRLHCSK+lMmrCNGDU2sXUdxkKX3bzAqDrfWYPxNs="
+  on:
+    tags: true
