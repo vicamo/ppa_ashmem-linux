@@ -1,3 +1,9 @@
+ashmem-linux (4.14+20180105-1) UNRELEASED; urgency=low
+
+  * install udev rules & modules.conf.
+
+ -- You-Sheng Yang <vicamo@gmail.com>  Fri, 5 Jan 2018 18:55:20 +0800
+
 ashmem-linux (4.14+20171226-1) UNRELEASED; urgency=low
 
   * Initial release.
