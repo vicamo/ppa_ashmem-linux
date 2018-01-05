@@ -42,6 +42,9 @@ install:
 script:
 - ${DOCKER_EXEC} env WORKAROUND_BINTRAY_DEB_SUPPORT=1
     dpkg-buildpackage -i -us -uc -b
+- ${DOCKER_EXEC} apt-get install --no-install-recommends --yes
+    linux-headers-${ARCH}
+- ${DOCKER_EXEC} dpkg -i ../*.deb
 
 before_deploy:
 - |
