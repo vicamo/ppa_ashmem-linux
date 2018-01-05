@@ -10,7 +10,16 @@ env:
   - BINTRAY_DESC="DKMS files to build and install ANDROID ashmem"
   - DOCKER_EXEC="sudo docker exec test_container"
   matrix:
-  - SUITE=sid ARCH=amd64
+  - SUITE=sid DEBIAN_ARCH=amd64 KERNEL_ARCH=amd64
+  - SUITE=sid DEBIAN_ARCH=arm64 KERNEL_ARCH=arm64
+  - SUITE=sid DEBIAN_ARCH=armel KERNEL_ARCH=marvell
+  - SUITE=sid DEBIAN_ARCH=armhf KERNEL_ARCH=armmp
+  - SUITE=sid DEBIAN_ARCH=i386 KERNEL_ARCH=686
+  - SUITE=sid DEBIAN_ARCH=mips KERNEL_ARCH=5kc-malta
+  - SUITE=sid DEBIAN_ARCH=mips64el KERNEL_ARCH=5kc-malta
+  - SUITE=sid DEBIAN_ARCH=mipsel KERNEL_ARCH=5kc-malta
+  - SUITE=sid DEBIAN_ARCH=ppc64el KERNEL_ARCH=powerpc64le
+  - SUITE=sid DEBIAN_ARCH=s390x KERNEL_ARCH=s390x
 
 matrix:
   fast_finish: true
@@ -21,14 +30,16 @@ branches:
   - /^\d+\.\d+/
 
 before_install:
-- sudo docker pull vicamo/debian-linux-kernel:${SUITE}-${ARCH}
+- docker run --rm --privileged vicamo/binfmt-qemu:latest
+- cat /proc/sys/fs/binfmt_misc/qemu-*
+- sudo docker pull vicamo/debian-linux-kernel:${SUITE}-${DEBIAN_ARCH}
 - sudo docker images
 - |
   sudo docker run --detach --tty \
     --name test_container \
     --volume ${TRAVIS_BUILD_DIR%${TRAVIS_REPO_SLUG}}:${TRAVIS_BUILD_DIR%${TRAVIS_REPO_SLUG}} \
     --workdir ${TRAVIS_BUILD_DIR} \
-    vicamo/debian-linux-kernel:${SUITE}-${ARCH} \
+    vicamo/debian-linux-kernel:${SUITE}-${DEBIAN_ARCH} \
     /bin/bash
 
 install:
@@ -43,7 +54,7 @@ script:
 - ${DOCKER_EXEC} env WORKAROUND_BINTRAY_DEB_SUPPORT=1
     dpkg-buildpackage -i -us -uc -b
 - ${DOCKER_EXEC} apt-get install --no-install-recommends --yes
-    linux-headers-${ARCH}
+    linux-headers-${KERNEL_ARCH}
 - ${DOCKER_EXEC} dpkg -i ../*.deb
 
 before_deploy:
@@ -71,3 +82,4 @@ deploy:
     secure: "I8s0lcWTdiiZaDkP5DPcapPNsMJy1wBcAM12ijD9GUhMhFvqJ+GcKrrPulQjzqanGStEKDwaeij9T0I9uD810IJ9S9e/34LYJRVlNrugzIhRw4++ajifFIgvBhzA4yiUkDFfIrDUxck9a5Wpq/EIAQeNENL3TGpAfnY/yNYZ/FQO3X1VgtU874NDsgQ1p+r7ZbMDfAjonhgpaD38N09h/n4bK5sBtJFmbKS6g9pQzJvXopJcfIMQGHIqTg2pUo9Pi8IrrJSPoKcy7NNRgJiMNEoUTu1BJnICXyKgrUa94zT5beo9snM9hyIMsUEh2dUDDu1AxZD0rzUYN1R1mxoXznqhp8x00tqXsGbn4PkqyTWOpjXpTl5sIrP9ubbQ5RVtiN7QYUDByc1iHMLWCLt5imHUrY6hBDu2YNGjwS53sZaDIo18QnjhZb6w2ecMDY+9U6tn54pm/SGie82SBDvtY4bCb5gXe9HGYA0zrekBlqGnSqsNNZXYTd7EzcDj5/LXnKVseFFVF+g+cgBXzmOtCHq32RLVFwkDnNilgTF6Kq/DGEoUwMfcwVGqbRF0LbEBTMWIRFBxd5WaPtFl7zuysEtuJPR8gkbkDjwqL5FX/jGlBY4EnBtU/XLfHBg+wauPeupxRLHCSK+lMmrCNGDU2sXUdxkKX3bzAqDrfWYPxNs="
   on:
     tags: true
+    condition: "${DEBIAN_ARCH} = amd64"
