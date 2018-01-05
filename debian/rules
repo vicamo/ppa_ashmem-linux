@@ -17,12 +17,18 @@ override_dh_auto_build:
 	exit 0
 
 override_dh_auto_install:
+	exit 0
+
+override_dh_install:
 	# Build install files for the dkms'ified sources
 	sed -e 's/@PACKAGE_VERSION@/${DEB_VERSION_UPSTREAM}/g' \
 	    -e 's/@KERNEL_VERSION@/$(KERNEL_VERSION)/g' \
 	  < debian/ashmem-dkms.dkms.in > debian/ashmem-dkms.dkms
 	sed -e 's/@PACKAGE_VERSION@/${DEB_VERSION_UPSTREAM}/g' \
 	  < debian/ashmem-dkms.install.in > debian/ashmem-dkms.install
+	install -D -m 644 debian/ashmem-dkms.modules-load.conf \
+	  debian/ashmem-dkms/etc/modules-load.d/ashmem-dkms.conf
+	dh_install
 
 override_dh_auto_clean:
 	exit 0
