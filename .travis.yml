@@ -10,16 +10,16 @@ env:
   - BINTRAY_DESC="DKMS files to build and install ANDROID ashmem"
   - DOCKER_EXEC="sudo docker exec test_container"
   matrix:
-  - SUITE=sid DEBIAN_ARCH=amd64 KERNEL_ARCH=amd64
-  - SUITE=sid DEBIAN_ARCH=arm64 KERNEL_ARCH=arm64
-  - SUITE=sid DEBIAN_ARCH=armel KERNEL_ARCH=marvell
-  - SUITE=sid DEBIAN_ARCH=armhf KERNEL_ARCH=armmp
-  - SUITE=sid DEBIAN_ARCH=i386 KERNEL_ARCH=686
-  - SUITE=sid DEBIAN_ARCH=mips KERNEL_ARCH=5kc-malta
-  - SUITE=sid DEBIAN_ARCH=mips64el KERNEL_ARCH=5kc-malta
-  - SUITE=sid DEBIAN_ARCH=mipsel KERNEL_ARCH=5kc-malta
-  - SUITE=sid DEBIAN_ARCH=ppc64el KERNEL_ARCH=powerpc64le
-  - SUITE=sid DEBIAN_ARCH=s390x KERNEL_ARCH=s390x
+  - SUITE=buster DEBIAN_ARCH=amd64 KERNEL_ARCH=amd64
+  - SUITE=buster DEBIAN_ARCH=arm64 KERNEL_ARCH=arm64
+  - SUITE=buster DEBIAN_ARCH=armel KERNEL_ARCH=marvell
+  - SUITE=buster DEBIAN_ARCH=armhf KERNEL_ARCH=armmp
+  - SUITE=buster DEBIAN_ARCH=i386 KERNEL_ARCH=686
+  - SUITE=buster DEBIAN_ARCH=mips KERNEL_ARCH=5kc-malta
+  - SUITE=buster DEBIAN_ARCH=mips64el KERNEL_ARCH=5kc-malta
+  - SUITE=buster DEBIAN_ARCH=mipsel KERNEL_ARCH=5kc-malta
+  - SUITE=buster DEBIAN_ARCH=ppc64el KERNEL_ARCH=powerpc64le
+  - SUITE=buster DEBIAN_ARCH=s390x KERNEL_ARCH=s390x
 
 matrix:
   fast_finish: true
@@ -51,6 +51,8 @@ install:
     --tool 'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends --yes --allow-unauthenticated'
 
 script:
+- cat debian/changelog | awk "NR == 1 {\$2 = substr(\$2, 1, length(\$2) - 1) \"+${SUITE})\"}{print}" > debian/changelog.new;
+  mv debian/changelog.new debian/changelog
 - ${DOCKER_EXEC} env WORKAROUND_BINTRAY_DEB_SUPPORT=1
     dpkg-buildpackage -i -us -uc -b
 - ${DOCKER_EXEC} apt-get install --no-install-recommends --yes
