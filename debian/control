@@ -9,7 +9,6 @@ Uploaders: You-Sheng Yang <vicamo@gmail.com>
 Build-Depends:
  debhelper (>=9),
  dkms,
- linux-kbuild-4.14,
 Standards-Version: 4.1.1
 Homepage: https://github.com/vicamo/ppa_ashmem-linux
 Vcs-Browser: https://github.com/vicamo/ppa_ashmem-linux
@@ -19,7 +18,7 @@ Package: ashmem-dkms
 Architecture: all
 Depends:
  ${misc:Depends},
- linux-kbuild-4.14,
+ linux-kbuild-4.15,
 Suggests: ashmem-dev
 Provides: ashmem-modules
 Description: DKMS files to build and install ANDROID ashmem

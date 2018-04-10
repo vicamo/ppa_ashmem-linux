@@ -12,7 +12,6 @@ env:
   matrix:
   - SUITE=buster DEBIAN_ARCH=amd64 KERNEL_ARCH=amd64
   - SUITE=buster DEBIAN_ARCH=arm64 KERNEL_ARCH=arm64
-  - SUITE=buster DEBIAN_ARCH=armel KERNEL_ARCH=marvell
   - SUITE=buster DEBIAN_ARCH=armhf KERNEL_ARCH=armmp
   - SUITE=buster DEBIAN_ARCH=i386 KERNEL_ARCH=686
   - SUITE=buster DEBIAN_ARCH=mips KERNEL_ARCH=5kc-malta
@@ -23,6 +22,8 @@ env:
 
 matrix:
   fast_finish: true
+  allow_failures:
+  - env: SUITE=buster DEBIAN_ARCH=armel KERNEL_ARCH=marvell
 
 branches:
   only:
