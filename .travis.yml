@@ -78,7 +78,8 @@ before_deploy:
     tee .bintray.json
 
 deploy:
-- provider: bintray
+  skip_cleanup: true
+  provider: bintray
   file: .bintray.json
   user: vicamo
   key:
