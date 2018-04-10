@@ -18,7 +18,7 @@ Package: ashmem-dkms
 Architecture: all
 Depends:
  ${misc:Depends},
- linux-kbuild-4.14,
+ linux-kbuild-4.15,
 Suggests: ashmem-dev
 Provides: ashmem-modules
 Description: DKMS files to build and install ANDROID ashmem
